@@ -45,14 +45,14 @@ vercel
 ```
 counter-strike-image-tracker/
 ├── public/
-│   └── index.html         # Interface web (100% estática)
-├── static/
-│   ├── images_inventory.json  # Mapeamento de imagens do inventário
-│   ├── images_market.json     # Mapeamento de imagens do market
-│   └── panorama/
-│       └── images/
-│           └── econ/          # Imagens do CS2 (servidas estaticamente)
-├── vercel.json                # Configuração do Vercel
+│   ├── index.html             # Interface web (100% estática)
+│   └── static/
+│       ├── images_inventory.json  # Mapeamento de imagens do inventário
+│       ├── images_market.json     # Mapeamento de imagens do market
+│       └── panorama/
+│           └── images/
+│               └── econ/          # Imagens do CS2 (servidas estaticamente)
+├── vercel.json                    # Configuração do Vercel
 └── package.json
 ```
 
@@ -101,11 +101,12 @@ Acesse: http://localhost:3000
 ## 📝 Notas
 
 - **Sem API serverless**: Tudo é servido estaticamente para evitar limites de tamanho
-- As imagens da pasta `static/panorama/` são servidas diretamente pelo CDN do Vercel
+- As imagens da pasta `public/static/panorama/` são servidas diretamente pelo CDN do Vercel
 - Os JSONs (`images_inventory.json` e `images_market.json`) apontam para a CDN do Steam
 - Imagens são cacheadas por 1 ano para melhor performance
 - A interface é totalmente responsiva
 - CORS habilitado, permitindo acesso de qualquer origem
+- **Importante**: A pasta `static/` deve estar dentro de `public/` para o Vercel servi-la automaticamente
 
 ## 🔗 Acessando Recursos
 
