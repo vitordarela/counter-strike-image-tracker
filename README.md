@@ -25,13 +25,7 @@ git push
 
 4. Importe seu repositório do GitHub
 
-5. Configure o projeto:
-   - **Framework Preset**: Other
-   - **Root Directory**: ./
-   - **Build Command**: `echo 'Build completed'`
-   - **Output Directory**: public
-
-6. Clique em "Deploy"
+5. Clique em "Deploy"
 
 #### Opção 2: Deploy via CLI
 
@@ -50,45 +44,47 @@ vercel
 
 ```
 counter-strike-image-tracker/
-├── api/
-│   └── list.js            # Serverless function para listar imagens
 ├── public/
-│   └── index.html         # Interface web para visualizar imagens
+│   └── index.html         # Interface web (100% estática)
 ├── static/
+│   ├── images_inventory.json  # Mapeamento de imagens do inventário
+│   ├── images_market.json     # Mapeamento de imagens do market
 │   └── panorama/
 │       └── images/
-│           └── econ/      # Imagens do CS2 (servidas estaticamente)
-├── vercel.json            # Configuração do Vercel
+│           └── econ/          # Imagens do CS2 (servidas estaticamente)
+├── vercel.json                # Configuração do Vercel
 └── package.json
 ```
 
 ## 📦 Funcionalidades
 
-- ✅ Visualização de imagens organizadas por categoria
+- ✅ Visualização de imagens organizadas por tipo (Inventário/Market)
 - ✅ Interface moderna e responsiva
+- ✅ Busca em tempo real
 - ✅ Modal para visualizar imagens em tamanho maior
 - ✅ Cache otimizado para performance
-- ✅ Imagens servidas estaticamente (super rápido!)
-- ✅ API serverless apenas para listar/indexar
+- ✅ 100% estático - sem serverless functions
 - ✅ Lazy loading de imagens
 - ✅ CORS habilitado para uso externo
+- ✅ Fallback para imagens indisponíveis
 
-## 🎮 Categorias Disponíveis
+## 🎮 Fontes de Dados
 
-- Characters
-- Default Generated
-- Music Kits
-- Patches
-- Season Icons
-- Set Icons
-- Status Icons
-- Stickers
-- Tools
-- Weapons
-- Weapon Cases
-- Tournaments
-- Premier Seasons
-- Keychains
+### Inventário (`images_inventory.json`)
+Mapeia nomes técnicos de itens para URLs da CDN do Steam:
+```json
+{
+  "econ/characters/customplayer_ctm_diver_varianta": "https://community.akamai.steamstatic.com/economy/image/..."
+}
+```
+
+### Market (`images_market.json`)
+Mapeia nomes de itens do mercado para URLs da CDN:
+```json
+{
+  "AK-47 | Aquamarine Revenge (Factory New)": "https://community.akamai.steamstatic.com/economy/image/..."
+}
+```
 
 ## 🛠️ Desenvolvimento Local
 
@@ -104,25 +100,24 @@ Acesse: http://localhost:3000
 
 ## 📝 Notas
 
-- As imagens são servidas **estaticamente** diretamente da pasta `static/` (não passam por serverless function)
-- Apenas a listagem de imagens usa Vercel Serverless Functions (`/api/list`)
+- **Sem API serverless**: Tudo é servido estaticamente para evitar limites de tamanho
+- As imagens da pasta `static/panorama/` são servidas diretamente pelo CDN do Vercel
+- Os JSONs (`images_inventory.json` e `images_market.json`) apontam para a CDN do Steam
 - Imagens são cacheadas por 1 ano para melhor performance
 - A interface é totalmente responsiva
-- CORS habilitado, permitindo que as imagens sejam acessadas de qualquer origem
+- CORS habilitado, permitindo acesso de qualquer origem
 
-## 🔗 Acessando Imagens Diretamente
+## 🔗 Acessando Recursos
 
-Você pode acessar qualquer imagem diretamente via URL:
-
+### Imagens Locais
 ```
 https://seu-dominio.vercel.app/static/panorama/images/econ/weapon_cases/crate_esl14_promo_de_overpass_png.png
 ```
 
-Ou via API para listar imagens:
-
+### JSONs de Mapeamento
 ```
-GET /api/list - Lista todas as categorias
-GET /api/list?category=stickers - Lista todas as imagens de uma categoria
+https://seu-dominio.vercel.app/static/images_inventory.json
+https://seu-dominio.vercel.app/static/images_market.json
 ```
 
 ## 🔧 Scripts Originais
@@ -137,4 +132,5 @@ Os scripts originais para baixar imagens do Steam ainda estão disponíveis:
 ## 📄 Licença
 
 Veja o arquivo LICENSE para mais detalhes.
+
 

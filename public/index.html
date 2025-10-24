@@ -49,37 +49,76 @@
             padding: 40px;
         }
 
-        .category-selector {
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .search-box {
             margin-bottom: 30px;
         }
 
-        .category-selector label {
-            display: block;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        select {
+        .search-box input {
             width: 100%;
             padding: 15px;
             font-size: 1rem;
             border: 2px solid #ddd;
             border-radius: 10px;
-            background: white;
-            cursor: pointer;
             transition: all 0.3s;
         }
 
-        select:hover {
-            border-color: #667eea;
-        }
-
-        select:focus {
+        .search-box input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
         }
 
         .loading {
@@ -149,41 +188,6 @@
             background: #f8f9fa;
         }
 
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .error {
-            background: #fee;
-            border: 2px solid #fcc;
-            color: #c33;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        /* Modal para visualizar imagem em tamanho maior */
         .modal {
             display: none;
             position: fixed;
@@ -234,6 +238,15 @@
             header {
                 padding: 30px 20px;
             }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -247,136 +260,149 @@
         <div class="content">
             <div class="stats" id="stats">
                 <div class="stat-item">
-                    <div class="stat-value" id="categoryCount">-</div>
-                    <div class="stat-label">Categorias</div>
+                    <div class="stat-value" id="totalCount">-</div>
+                    <div class="stat-label">Total de Itens</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="imageCount">-</div>
-                    <div class="stat-label">Imagens</div>
+                    <div class="stat-value" id="displayCount">-</div>
+                    <div class="stat-label">Exibindo</div>
                 </div>
             </div>
 
-            <div class="category-selector">
-                <label for="category">Selecione uma categoria:</label>
-                <select id="category">
-                    <option value="">Carregando categorias...</option>
-                </select>
+            <div class="tabs">
+                <button class="tab active" data-source="inventory">Inventário</button>
+                <button class="tab" data-source="market">Market</button>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar item...">
             </div>
 
             <div id="imageContainer">
                 <div class="loading">
                     <div class="spinner"></div>
-                    Selecione uma categoria para visualizar as imagens
+                    Carregando imagens...
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para visualizar imagem -->
     <div class="modal" id="imageModal">
         <span class="close-modal" onclick="closeModal()">&times;</span>
         <img class="modal-content" id="modalImage">
     </div>
 
     <script>
-        let categories = [];
-        let currentImages = [];
+        let allImages = {};
+        let currentSource = 'inventory';
+        let displayedImages = [];
+        let searchTimeout;
 
-        // Carregar categorias
-        async function loadCategories() {
+        // Carregar dados
+        async function loadData(source) {
             try {
-                const response = await fetch('/api/list');
+                const response = await fetch(`/static/images_${source}.json`);
                 const data = await response.json();
-                categories = data.categories;
-                
-                const select = document.getElementById('category');
-                select.innerHTML = '<option value="">Selecione uma categoria...</option>';
-                
-                categories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat;
-                    option.textContent = cat.replace(/_/g, ' ').toUpperCase();
-                    select.appendChild(option);
-                });
-
-                document.getElementById('categoryCount').textContent = categories.length;
+                return data;
             } catch (error) {
-                console.error('Erro ao carregar categorias:', error);
-                document.getElementById('imageContainer').innerHTML = 
-                    '<div class="error">Erro ao carregar categorias. Verifique a conexão.</div>';
+                console.error('Erro ao carregar dados:', error);
+                return {};
             }
         }
 
-        // Carregar imagens de uma categoria
-        async function loadImages(category) {
-            if (!category) {
-                document.getElementById('imageContainer').innerHTML = 
-                    '<div class="loading"><div class="spinner"></div>Selecione uma categoria para visualizar as imagens</div>';
-                document.getElementById('imageCount').textContent = '-';
+        // Renderizar imagens
+        function renderImages(images) {
+            const container = document.getElementById('imageContainer');
+            
+            if (Object.keys(images).length === 0) {
+                container.innerHTML = '<div class="loading">Nenhuma imagem encontrada.</div>';
+                document.getElementById('displayCount').textContent = '0';
                 return;
             }
 
-            document.getElementById('imageContainer').innerHTML = 
-                '<div class="loading"><div class="spinner"></div>Carregando imagens...</div>';
+            const grid = document.createElement('div');
+            grid.className = 'image-grid';
 
-            try {
-                const response = await fetch(`/api/list?category=${category}`);
-                const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error);
-                }
+            Object.entries(images).forEach(([name, url]) => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                card.onclick = () => openModal(url, name);
 
-                currentImages = data.files;
-                document.getElementById('imageCount').textContent = data.count;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-wrapper';
 
-                if (currentImages.length === 0) {
-                    document.getElementById('imageContainer').innerHTML = 
-                        '<div class="loading">Nenhuma imagem encontrada nesta categoria.</div>';
-                    return;
-                }
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = name;
+                img.loading = 'lazy';
+                img.onerror = () => {
+                    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ctext y="50" x="50" text-anchor="middle" font-size="12"%3EImagem indisponível%3C/text%3E%3C/svg%3E';
+                };
 
-                const grid = document.createElement('div');
-                grid.className = 'image-grid';
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'image-name';
+                nameDiv.textContent = name;
 
-                currentImages.forEach(file => {
-                    const card = document.createElement('div');
-                    card.className = 'image-card';
-                    card.onclick = () => openModal(file.url);
+                wrapper.appendChild(img);
+                card.appendChild(wrapper);
+                card.appendChild(nameDiv);
+                grid.appendChild(card);
+            });
 
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'image-wrapper';
-
-                    const img = document.createElement('img');
-                    img.src = file.url;
-                    img.alt = file.name;
-                    img.loading = 'lazy';
-
-                    const name = document.createElement('div');
-                    name.className = 'image-name';
-                    name.textContent = file.name.replace('.png', '').replace('.jpg', '').replace(/_png$/, '');
-
-                    wrapper.appendChild(img);
-                    card.appendChild(wrapper);
-                    card.appendChild(name);
-                    grid.appendChild(card);
-                });
-
-                document.getElementById('imageContainer').innerHTML = '';
-                document.getElementById('imageContainer').appendChild(grid);
-            } catch (error) {
-                console.error('Erro ao carregar imagens:', error);
-                document.getElementById('imageContainer').innerHTML = 
-                    `<div class="error">Erro ao carregar imagens: ${error.message}</div>`;
-            }
+            container.innerHTML = '';
+            container.appendChild(grid);
+            
+            document.getElementById('displayCount').textContent = Object.keys(images).length;
         }
 
-        // Modal functions
-        function openModal(imageUrl) {
+        // Filtrar imagens
+        function filterImages(searchTerm) {
+            if (!searchTerm) {
+                displayedImages = allImages[currentSource];
+            } else {
+                const term = searchTerm.toLowerCase();
+                displayedImages = {};
+                
+                Object.entries(allImages[currentSource]).forEach(([name, url]) => {
+                    if (name.toLowerCase().includes(term)) {
+                        displayedImages[name] = url;
+                    }
+                });
+            }
+            
+            renderImages(displayedImages);
+        }
+
+        // Trocar fonte de dados
+        async function switchSource(source) {
+            currentSource = source;
+            
+            // Atualizar tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-source="${source}"]`).classList.add('active');
+
+            // Se ainda não carregou os dados, carregar
+            if (!allImages[source]) {
+                document.getElementById('imageContainer').innerHTML = 
+                    '<div class="loading"><div class="spinner"></div>Carregando imagens...</div>';
+                allImages[source] = await loadData(source);
+                document.getElementById('totalCount').textContent = Object.keys(allImages[source]).length;
+            }
+
+            // Aplicar filtro atual
+            const searchTerm = document.getElementById('searchInput').value;
+            filterImages(searchTerm);
+        }
+
+        // Modal
+        function openModal(imageUrl, name) {
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
             modal.classList.add('active');
             modalImg.src = imageUrl;
+            modalImg.alt = name;
         }
 
         function closeModal() {
@@ -385,18 +411,25 @@
         }
 
         // Event listeners
-        document.getElementById('category').addEventListener('change', (e) => {
-            loadImages(e.target.value);
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                switchSource(e.target.dataset.source);
+            });
         });
 
-        // Fechar modal ao clicar fora da imagem
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterImages(e.target.value);
+            }, 300);
+        });
+
         document.getElementById('imageModal').addEventListener('click', (e) => {
             if (e.target.id === 'imageModal') {
                 closeModal();
             }
         });
 
-        // Fechar modal com ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeModal();
@@ -404,8 +437,11 @@
         });
 
         // Inicializar
-        loadCategories();
+        (async () => {
+            allImages.inventory = await loadData('inventory');
+            document.getElementById('totalCount').textContent = Object.keys(allImages.inventory).length;
+            filterImages('');
+        })();
     </script>
 </body>
 </html>
-
