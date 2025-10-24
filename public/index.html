@@ -301,8 +301,17 @@
         // Load data
         async function loadData(source) {
             try {
-                console.log(`Loading data from: /static/images_${source}.json`);
-                const response = await fetch(`/static/images_${source}.json`);
+                // Try loading from local first, then fallback to GitHub raw
+                const localUrl = `/static/images_${source}.json`;
+                const githubUrl = `https://raw.githubusercontent.com/vitordarela/counter-strike-image-tracker/main/public/static/images_${source}.json`;
+                
+                console.log(`Loading data from: ${localUrl}`);
+                let response = await fetch(localUrl);
+                
+                if (!response.ok) {
+                    console.log(`Local fetch failed (${response.status}), trying GitHub...`);
+                    response = await fetch(githubUrl);
+                }
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
