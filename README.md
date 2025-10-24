@@ -40,19 +40,58 @@ vercel login
 vercel
 ```
 
+## 🤖 Automated Updates via GitHub Actions
+
+This project includes automated workflows that:
+
+### 1. Download CS Images (`workflow.yml`)
+- **Schedule**: Runs every hour
+- **What it does**:
+  - Downloads latest game files from Steam
+  - Decompiles VPK files
+  - Extracts images to `public/static/panorama/images/econ/`
+  - Generates `default_generated.json`
+  - Auto-commits changes
+
+**Required Secrets:**
+- `USERNAME`: Steam account username
+- `PASSWORD`: Steam account password
+
+### 2. Update CDN Images (`images.yml`)
+- **Trigger**: Manual dispatch
+- **What it does**:
+  - Fetches item data from Steam Market
+  - Generates `images_inventory.json` and `images_market.json`
+  - Maps item names to Steam CDN URLs
+  - Auto-commits changes
+
+**Required Secrets:**
+- `USERNAME`: Steam account username
+- `PASSWORD`: Steam account password
+
 ## 🌐 Project Structure
 
 ```
 counter-strike-image-tracker/
+├── .github/
+│   └── workflows/
+│       ├── workflow.yml       # Auto-download CS images
+│       └── images.yml         # Update CDN mappings
 ├── public/
 │   ├── index.html             # Web interface (100% static)
 │   └── static/
 │       ├── images_inventory.json  # Inventory image mappings
 │       ├── images_market.json     # Market image mappings
+│       ├── default_generated.json # Default generated items
 │       └── panorama/
 │           └── images/
 │               └── econ/          # CS2 images (served statically)
-├── vercel.json                    # Vercel configuration
+├── source2viewer/
+│   └── Source2Viewer-CLI      # VPK decompiler
+├── index.js                   # Steam file downloader
+├── images.js                  # CDN image mapper
+├── list.js                    # JSON list generator
+├── vercel.json                # Vercel configuration
 └── package.json
 ```
 
@@ -67,6 +106,7 @@ counter-strike-image-tracker/
 - ✅ Lazy loading of images
 - ✅ CORS enabled for external use
 - ✅ Fallback for unavailable images
+- ✅ Automated updates via GitHub Actions
 
 ## 🎮 Data Sources
 
@@ -86,6 +126,9 @@ Maps market item names to CDN URLs:
 }
 ```
 
+### Default Generated (`default_generated.json`)
+Lists all default generated item files extracted from game files.
+
 ## 🛠️ Local Development
 
 ```bash
@@ -101,6 +144,7 @@ Access: http://localhost:3000
 ## 📝 Notes
 
 - **No serverless API**: Everything is served statically to avoid size limits
+- Large JSON files are loaded from GitHub Raw if not available locally (fallback mechanism)
 - Images from `public/static/panorama/` folder are served directly by Vercel CDN
 - JSONs (`images_inventory.json` and `images_market.json`) point to Steam CDN
 - Images are cached for 1 year for better performance
@@ -121,15 +165,20 @@ https://your-domain.vercel.app/static/images_inventory.json
 https://your-domain.vercel.app/static/images_market.json
 ```
 
-## 🔧 Original Scripts
+### GitHub Raw Fallback
+```
+https://raw.githubusercontent.com/yourusername/counter-strike-image-tracker/main/public/static/images_inventory.json
+```
 
-The original scripts to download images from Steam are still available:
+## 🔧 Scripts
 
 - `index.js` - Steam image download
-- `images.js` - Image processing
+- `images.js` - Image processing and CDN mapping
+- `list.js` - Generate default_generated.json
 - `extract-thumbnails.js` - Thumbnail extraction
 - `cleanup-images.js` - Image cleanup
 
 ## 📄 License
 
 See the LICENSE file for more details.
+
