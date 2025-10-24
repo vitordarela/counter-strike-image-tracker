@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -254,34 +254,34 @@
     <div class="container">
         <header>
             <h1>🎮 Counter-Strike Image Tracker</h1>
-            <p class="subtitle">Visualize todas as imagens do CS2</p>
+            <p class="subtitle">Browse all CS2 images</p>
         </header>
 
         <div class="content">
             <div class="stats" id="stats">
                 <div class="stat-item">
                     <div class="stat-value" id="totalCount">-</div>
-                    <div class="stat-label">Total de Itens</div>
+                    <div class="stat-label">Total Items</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" id="displayCount">-</div>
-                    <div class="stat-label">Exibindo</div>
+                    <div class="stat-label">Displaying</div>
                 </div>
             </div>
 
             <div class="tabs">
-                <button class="tab active" data-source="inventory">Inventário</button>
+                <button class="tab active" data-source="inventory">Inventory</button>
                 <button class="tab" data-source="market">Market</button>
             </div>
 
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 Buscar item...">
+                <input type="text" id="searchInput" placeholder="🔍 Search item...">
             </div>
 
             <div id="imageContainer">
                 <div class="loading">
                     <div class="spinner"></div>
-                    Carregando imagens...
+                    Loading images...
                 </div>
             </div>
         </div>
@@ -298,24 +298,33 @@
         let displayedImages = [];
         let searchTimeout;
 
-        // Carregar dados
+        // Load data
         async function loadData(source) {
             try {
+                console.log(`Loading data from: /static/images_${source}.json`);
                 const response = await fetch(`/static/images_${source}.json`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log(`Loaded ${Object.keys(data).length} items from ${source}`);
                 return data;
             } catch (error) {
-                console.error('Erro ao carregar dados:', error);
+                console.error('Error loading data:', error);
+                document.getElementById('imageContainer').innerHTML = 
+                    `<div class="loading">Error loading data: ${error.message}<br>Check console for details.</div>`;
                 return {};
             }
         }
 
-        // Renderizar imagens
+        // Render images
         function renderImages(images) {
             const container = document.getElementById('imageContainer');
             
             if (Object.keys(images).length === 0) {
-                container.innerHTML = '<div class="loading">Nenhuma imagem encontrada.</div>';
+                container.innerHTML = '<div class="loading">No images found.</div>';
                 document.getElementById('displayCount').textContent = '0';
                 return;
             }
@@ -336,7 +345,7 @@
                 img.alt = name;
                 img.loading = 'lazy';
                 img.onerror = () => {
-                    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ctext y="50" x="50" text-anchor="middle" font-size="12"%3EImagem indisponível%3C/text%3E%3C/svg%3E';
+                    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ctext y="50" x="50" text-anchor="middle" font-size="12"%3EImage unavailable%3C/text%3E%3C/svg%3E';
                 };
 
                 const nameDiv = document.createElement('div');
@@ -355,7 +364,7 @@
             document.getElementById('displayCount').textContent = Object.keys(images).length;
         }
 
-        // Filtrar imagens
+        // Filter images
         function filterImages(searchTerm) {
             if (!searchTerm) {
                 displayedImages = allImages[currentSource];
@@ -373,25 +382,25 @@
             renderImages(displayedImages);
         }
 
-        // Trocar fonte de dados
+        // Switch data source
         async function switchSource(source) {
             currentSource = source;
             
-            // Atualizar tabs
+            // Update tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
             document.querySelector(`[data-source="${source}"]`).classList.add('active');
 
-            // Se ainda não carregou os dados, carregar
+            // If data not loaded yet, load it
             if (!allImages[source]) {
                 document.getElementById('imageContainer').innerHTML = 
-                    '<div class="loading"><div class="spinner"></div>Carregando imagens...</div>';
+                    '<div class="loading"><div class="spinner"></div>Loading images...</div>';
                 allImages[source] = await loadData(source);
                 document.getElementById('totalCount').textContent = Object.keys(allImages[source]).length;
             }
 
-            // Aplicar filtro atual
+            // Apply current filter
             const searchTerm = document.getElementById('searchInput').value;
             filterImages(searchTerm);
         }
@@ -436,11 +445,26 @@
             }
         });
 
-        // Inicializar
+        // Initialize
         (async () => {
-            allImages.inventory = await loadData('inventory');
-            document.getElementById('totalCount').textContent = Object.keys(allImages.inventory).length;
-            filterImages('');
+            console.log('Initializing app...');
+            try {
+                allImages.inventory = await loadData('inventory');
+                const count = Object.keys(allImages.inventory).length;
+                console.log(`Total inventory items: ${count}`);
+                document.getElementById('totalCount').textContent = count;
+                
+                if (count > 0) {
+                    filterImages('');
+                } else {
+                    document.getElementById('imageContainer').innerHTML = 
+                        '<div class="loading">No images found in inventory.json</div>';
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.getElementById('imageContainer').innerHTML = 
+                    `<div class="loading">Initialization error: ${error.message}</div>`;
+            }
         })();
     </script>
 </body>

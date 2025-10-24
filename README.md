@@ -1,77 +1,77 @@
 # Counter-Strike Image Tracker
 
-Este projeto hospeda e visualiza imagens do Counter-Strike 2 extraídas dos arquivos do jogo.
+This project hosts and displays Counter-Strike 2 images extracted from game files.
 
-## 🚀 Deploy no Vercel
+## 🚀 Deploy to Vercel
 
-### Pré-requisitos
-- Conta no [Vercel](https://vercel.com)
-- [Vercel CLI](https://vercel.com/cli) instalado (opcional)
+### Prerequisites
+- [Vercel](https://vercel.com) account
+- [Vercel CLI](https://vercel.com/cli) installed (optional)
 
-### Passos para Deploy
+### Deployment Steps
 
-#### Opção 1: Deploy via Interface Web do Vercel
+#### Option 1: Deploy via Vercel Web Interface
 
-1. Faça commit de todas as alterações:
+1. Commit all changes:
 ```bash
 git add .
-git commit -m "Preparar para deploy no Vercel"
+git commit -m "Prepare for Vercel deployment"
 git push
 ```
 
-2. Acesse [vercel.com](https://vercel.com) e faça login
+2. Go to [vercel.com](https://vercel.com) and log in
 
-3. Clique em "Add New Project"
+3. Click "Add New Project"
 
-4. Importe seu repositório do GitHub
+4. Import your GitHub repository
 
-5. Clique em "Deploy"
+5. Click "Deploy"
 
-#### Opção 2: Deploy via CLI
+#### Option 2: Deploy via CLI
 
 ```bash
-# Instalar Vercel CLI
+# Install Vercel CLI
 npm install -g vercel
 
-# Fazer login
+# Login
 vercel login
 
 # Deploy
 vercel
 ```
 
-## 🌐 Estrutura do Projeto
+## 🌐 Project Structure
 
 ```
 counter-strike-image-tracker/
 ├── public/
-│   ├── index.html             # Interface web (100% estática)
+│   ├── index.html             # Web interface (100% static)
 │   └── static/
-│       ├── images_inventory.json  # Mapeamento de imagens do inventário
-│       ├── images_market.json     # Mapeamento de imagens do market
+│       ├── images_inventory.json  # Inventory image mappings
+│       ├── images_market.json     # Market image mappings
 │       └── panorama/
 │           └── images/
-│               └── econ/          # Imagens do CS2 (servidas estaticamente)
-├── vercel.json                    # Configuração do Vercel
+│               └── econ/          # CS2 images (served statically)
+├── vercel.json                    # Vercel configuration
 └── package.json
 ```
 
-## 📦 Funcionalidades
+## 📦 Features
 
-- ✅ Visualização de imagens organizadas por tipo (Inventário/Market)
-- ✅ Interface moderna e responsiva
-- ✅ Busca em tempo real
-- ✅ Modal para visualizar imagens em tamanho maior
-- ✅ Cache otimizado para performance
-- ✅ 100% estático - sem serverless functions
-- ✅ Lazy loading de imagens
-- ✅ CORS habilitado para uso externo
-- ✅ Fallback para imagens indisponíveis
+- ✅ Image visualization organized by type (Inventory/Market)
+- ✅ Modern and responsive interface
+- ✅ Real-time search
+- ✅ Modal to view images in larger size
+- ✅ Optimized cache for performance
+- ✅ 100% static - no serverless functions
+- ✅ Lazy loading of images
+- ✅ CORS enabled for external use
+- ✅ Fallback for unavailable images
 
-## 🎮 Fontes de Dados
+## 🎮 Data Sources
 
-### Inventário (`images_inventory.json`)
-Mapeia nomes técnicos de itens para URLs da CDN do Steam:
+### Inventory (`images_inventory.json`)
+Maps technical item names to Steam CDN URLs:
 ```json
 {
   "econ/characters/customplayer_ctm_diver_varianta": "https://community.akamai.steamstatic.com/economy/image/..."
@@ -79,59 +79,57 @@ Mapeia nomes técnicos de itens para URLs da CDN do Steam:
 ```
 
 ### Market (`images_market.json`)
-Mapeia nomes de itens do mercado para URLs da CDN:
+Maps market item names to CDN URLs:
 ```json
 {
   "AK-47 | Aquamarine Revenge (Factory New)": "https://community.akamai.steamstatic.com/economy/image/..."
 }
 ```
 
-## 🛠️ Desenvolvimento Local
+## 🛠️ Local Development
 
 ```bash
-# Instalar dependências
+# Install dependencies
 npm install
 
-# Executar localmente com Vercel Dev
+# Run locally with Vercel Dev
 npm run dev
 ```
 
-Acesse: http://localhost:3000
+Access: http://localhost:3000
 
-## 📝 Notas
+## 📝 Notes
 
-- **Sem API serverless**: Tudo é servido estaticamente para evitar limites de tamanho
-- As imagens da pasta `public/static/panorama/` são servidas diretamente pelo CDN do Vercel
-- Os JSONs (`images_inventory.json` e `images_market.json`) apontam para a CDN do Steam
-- Imagens são cacheadas por 1 ano para melhor performance
-- A interface é totalmente responsiva
-- CORS habilitado, permitindo acesso de qualquer origem
-- **Importante**: A pasta `static/` deve estar dentro de `public/` para o Vercel servi-la automaticamente
+- **No serverless API**: Everything is served statically to avoid size limits
+- Images from `public/static/panorama/` folder are served directly by Vercel CDN
+- JSONs (`images_inventory.json` and `images_market.json`) point to Steam CDN
+- Images are cached for 1 year for better performance
+- The interface is fully responsive
+- CORS enabled, allowing access from any origin
+- **Important**: The `static/` folder must be inside `public/` for Vercel to serve it automatically
 
-## 🔗 Acessando Recursos
+## 🔗 Accessing Resources
 
-### Imagens Locais
+### Local Images
 ```
-https://seu-dominio.vercel.app/static/panorama/images/econ/weapon_cases/crate_esl14_promo_de_overpass_png.png
-```
-
-### JSONs de Mapeamento
-```
-https://seu-dominio.vercel.app/static/images_inventory.json
-https://seu-dominio.vercel.app/static/images_market.json
+https://your-domain.vercel.app/static/panorama/images/econ/weapon_cases/crate_esl14_promo_de_overpass_png.png
 ```
 
-## 🔧 Scripts Originais
+### Mapping JSONs
+```
+https://your-domain.vercel.app/static/images_inventory.json
+https://your-domain.vercel.app/static/images_market.json
+```
 
-Os scripts originais para baixar imagens do Steam ainda estão disponíveis:
+## 🔧 Original Scripts
 
-- `index.js` - Download de imagens do Steam
-- `images.js` - Processamento de imagens
-- `extract-thumbnails.js` - Extração de thumbnails
-- `cleanup-images.js` - Limpeza de imagens
+The original scripts to download images from Steam are still available:
 
-## 📄 Licença
+- `index.js` - Steam image download
+- `images.js` - Image processing
+- `extract-thumbnails.js` - Thumbnail extraction
+- `cleanup-images.js` - Image cleanup
 
-Veja o arquivo LICENSE para mais detalhes.
+## 📄 License
 
-
+See the LICENSE file for more details.
