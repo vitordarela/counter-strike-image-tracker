@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const directoryPath = path.join(__dirname, 'static', 'panorama', 'images', 'econ', 'default_generated');
-const outputPath = path.join(__dirname, 'static', 'default_generated.json');
+const directoryPath = path.join(__dirname, 'public', 'static', 'panorama', 'images', 'econ', 'default_generated');
+const outputPath = path.join(__dirname, 'public', 'static', 'default_generated.json');
 
 try {
     const files = fs.readdirSync(directoryPath);

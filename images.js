@@ -1,6 +1,6 @@
 const SteamCommunity = require("steamcommunity");
 const fs = require("fs");
-const dir = `./static`;
+const dir = `./public/static`;
 const ITEMS_API_BASE_URL =
 	"https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en";
 const MARKET_BASE_URL = "https://steamcommunity.com/market";

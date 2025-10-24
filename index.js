@@ -9,7 +9,7 @@ const util = require("util");
 
 const appId = 730;
 const depotId = 2347770;
-const dir = `./static`;
+const dir = `./public/static`;
 const temp = "./temp";
 const manifestIdFile = "manifestId.txt";
 
