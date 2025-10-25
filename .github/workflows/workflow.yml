@@ -42,8 +42,8 @@ jobs:
         run: |
           if [ -f "./temp/pak01_dir.vpk" ]; then
             rm -fr ./exceptions.txt
-            chmod +x ./Source2Viewer-CLI
-            ./Source2Viewer-CLI -i "./temp/pak01_dir.vpk" -o "./public/static" -e "vtex_c" -d -f "panorama/images/econ"
+            chmod +x ./source2viewer/Source2Viewer-CLI
+            ./source2viewer/Source2Viewer-CLI -i "./temp/pak01_dir.vpk" -o "./public/static" -e "vtex_c" -d -f "panorama/images/econ"
           else
             echo "pak01_dir.vpk not found, skipping decompilation"
           fi
